@@ -1,19 +1,10 @@
 function forms() {
-
-
-    //form
-
-    let message = {
-        loading: "Загрузка...",
-        Success: "Спасибо",
-        Failure: "Что-то пошле нетак..."
-    };
-
-    let form = document.querySelector('.main-form'),
-        input = document.getElementsByTagName('input'),
-        feedbackForm = document.querySelector('#form'),
-        overlay = document.querySelector('.overlay'),//overlay
-        phoneInput = document.querySelectorAll('#phone');
+        //form
+        let form = document.querySelector('.main-form'),
+            input = document.getElementsByTagName('input'),
+            overlay = document.querySelector('.overlay'), //overlay
+            feedbackForm = document.querySelector('#form'),
+            phoneInput = document.querySelectorAll('#phone');
 
     var popupWindow = document.querySelector('.popup-form'),
         img = document.createElement("IMG");
@@ -22,67 +13,90 @@ function forms() {
 
     form.addEventListener('submit', (event) => {
         json(form);
+        checkingJson();
     });
 
     feedbackForm.addEventListener('submit', (event) => {
         json(feedbackForm);
+        checkingJson();
     });
 
 
     function json(name) {
         event.preventDefault();
+        return new Promise(function (resolve, reject) {
 
+            let request = new XMLHttpRequest();
+            request.open('POST', 'server.php');
+            request.setRequestHeader('Content-Type', 'application/json; charset=utf-8'); // Метод для JSON
 
-        function imgSettings() {
-            overlay.style.display = "block";
-            document.body.style.overflow = "hidden";
-            form.style.display = "none";
-            popupWindow.appendChild(img);
-            setTimeout(() => {
-                popupWindow.removeChild(img);
-                overlay.style.display = "none";
-                document.body.style.overflow = "";
-            }, 3000);
-        }
+            let formData = new FormData(name); // здесь мы получаем всю информацию который написал пользователь 
 
-        let request = new XMLHttpRequest();
-        request.open('POST', 'server.php');
-        // request.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded'); // Обычный Метод
-        request.setRequestHeader('Content-Type', 'application/json; charset=utf-8'); // Метод для JSON
+            let obj = {}; // этот пункт нужен для Json. 
+            formData.forEach((value, key) => {
+                obj[key] = value;
+            });
+            let json = JSON.stringify(obj); //превращает обычный JS объект в JSON файл
 
+            request.send(json);
+            request.addEventListener('readystatechange', () => {
+                if (request.readyState < 4) {
+                    resolve();
+                } else if (request.readyState === 4 && request.status == 200) {
+                    resolve();
+                } else {
+                    reject();
+                }
+            });
+        });
+    }
 
-        let formData = new FormData(name); // здесь мы получаем всю информацию который написал пользователь 
-
-        let obj = {}; // этот пункт нужен для Json. 
-        // Мы превратили объект formData в обычный читаемый формат 
-        formData.forEach((value, key) => {
-            obj[key] = value;
-        }); // до сюда
-        let json = JSON.stringify(obj) //превращает обычный JS объект в JSON файл
-
-        request.send(json);
-        //request.send(formData); //обычный метод отправки
-        request.addEventListener('readystatechange', () => {
-            if (request.readyState < 4) {
+    //Check promise
+    function checkingJson() {
+        json(name)
+            .then(() => {
                 overlay.style.display = "block";
                 document.body.style.overflow = "hidden";
                 form.style.display = "none";
                 popupWindow.appendChild(img);
                 img.src = "/img/Preloader_4.gif";
-            } else if (request.readyState === 4 && request.status == 200) {
+            })
+            .then(() => {
                 img.src = "/img/thanks.png";
                 imgSettings();
-            } else {
+            })
+            .catch(() => {
                 img.src = "/img/fail.png";
                 imgSettings();
-            }
-        });
+            })
+            .then(() => {
+                cleanInputs();
+            })
+    }
+
+    //clean inputs
+    function cleanInputs() {
         for (let i = 0; i < input.length; i++) {
             input[i].value = '';
         }
     }
 
 
+    //options for imgs after sending
+    function imgSettings() {
+        overlay.style.display = "block";
+        document.body.style.overflow = "hidden";
+        form.style.display = "none";
+        popupWindow.appendChild(img);
+        setTimeout(() => {
+            popupWindow.removeChild(img);
+            overlay.style.display = "none";
+            document.body.style.overflow = "";
+        }, 3000);
+    }
+
+
+    // options for inputs after sending
     phoneInput.forEach(function (item) {
         item.addEventListener('keydown', (event) => {
             if (event.keyCode == 46 || event.keyCode == 8 || event.keyCode == 9 || event.keyCode == 27 || event.keyCode == 107 ||
