@@ -59,19 +59,21 @@ function forms() {
                 document.body.style.overflow = "hidden";
                 form.style.display = "none";
                 popupWindow.appendChild(img);
-                img.src = "/img/Preloader_4.gif";
+                img.src = "./img/Preloader_4.gif";
             })
             .then(() => {
-                img.src = "/img/thanks.png";
+                img.src = "./img/thanks.png";
                 imgSettings();
+                cleanInputs();
             })
             .catch(() => {
-                img.src = "/img/fail.png";
+                img.src = "./img/fail.png";
                 imgSettings();
+                
             })
             .then(() => {
                 cleanInputs();
-            })
+            });
     }
 
     //clean inputs
