@@ -32,7 +32,7 @@ function calcs() {
     });
 
     place.addEventListener('change', function () {
-        if (restDays.value == '' || persons.value == '') {
+        if (restDays.value == '' || persons.value == '' || restDays.value == 0 || persons.value == 0) {
             totalValue.innerHTML = 0;
         } else {
             let a = total;
